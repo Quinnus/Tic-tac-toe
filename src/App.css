@@ -1,123 +1,125 @@
 /* Center everything on the page */
 body {
-  font-family: Arial, sans-serif;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  min-height: 100vh;
-  background-color: #f0f0f0;
-  margin: 0;
-  padding-top: 40px;
-  background: linear-gradient(180deg, #f0f0f0 0%, #8f97eb 100%);
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    width: 100%;
+    margin: 0;
+    padding-top: 40px;
+    background: #f0f0f0 linear-gradient(180deg, #f0f0f0 0%, #8f97eb 100%);
+    overflow: hidden;
 }
 
 /* Header styling */
 h1 {
-  margin-bottom: 5px;
-  color: #333;
+    margin-bottom: 5px;
+    color: #333;
 }
 
 h3 {
-  margin-top: 0;
-  color: #666;
+    margin-top: 0;
+    color: #666;
 }
 
 /* Board grid */
 #board {
-  display: grid;
-  grid-template-columns: repeat(3, 160px);
-  grid-template-rows: repeat(3, 160px);
-  gap: 16px;
-  margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(3, 160px);
+    grid-template-rows: repeat(3, 160px);
+    gap: 16px;
+    margin-top: 20px;
 }
 
 /* Buttons (squares) */
 #board button {
-  font-size: 5rem;
-  font-weight: bold;
-  border: 2px solid #555;
-  border-radius: 8px;
-  background-color: #fff;
-  cursor: pointer;
-  transition: background-color 0.2s, transform 0.15s ease-out;
+    font-size: 5rem;
+    font-weight: bold;
+    border: 2px solid #555;
+    border-radius: 8px;
+    background-color: #fff;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.15s ease-out;
 }
 
 /* Hover / active effects */
 #board button:hover {
-  background-color: #e0e0e0;
-  transform: scale(1.1);
-  box-shadow: 0 0 10px rgb(35, 224, 10);
+    background-color: #e0e0e0;
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgb(35, 224, 10);
 }
 
 #board button:active {
-  transform: scale(0.95);
+    transform: scale(0.95);
 }
 
 /* Optional: different colours for X and O */
 #board button:has(span.x) {
-  color: #0074d9;
+    color: #0074d9;
 }
 
 #board button:has(span.o) {
-  color: #ff4136;
+    color: #ff4136;
 }
 
 /* --- Simple pop animation when X or O appears --- */
 @keyframes popIn {
-  0% {
-    transform: scale(0.2);
-    opacity: 0;
-  }
-  80% {
-    transform: scale(1.1);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1);
-  }
+    0% {
+        transform: scale(0.2);
+        opacity: 0;
+    }
+    80% {
+        transform: scale(1.1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 /* Apply animation to filled squares */
 button.played {
-  animation: popIn 0.3s ease-out;
+    animation: popIn 0.3s ease-out;
 }
 
 /* Optional colours for X and O */
 button.x {
-  color: #0074d9; /* blue for X */
+    color: #0074d9; /* blue for X */
 }
 
 button.o {
-  color: #ff4136; /* red for O */
+    color: #ff4136; /* red for O */
 }
 
 #board button.reset {
-  font-size: 1.5em;
-  background-color: #de2935;
-  color: white;
-  font-weight: bold;
-  border: none;
-  border-radius: 8px;
-  padding: 10px 16px;
-  margin-top: 12px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+    font-size: 1.5em;
+    background-color: #de2935;
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    margin-top: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
 }
 
 #board button.reset:hover {
-  background-color: #ec0b1a;
-  transform: scale(1.05);
-  box-shadow: none;
+    background-color: #ec0b1a;
+    transform: scale(1.05);
+    box-shadow: none;
 }
 
 @media (max-width: 600px) {
-  #board {
-    grid-template-columns: repeat(3, 100px);
-    grid-template-rows: repeat(3, 100px);
-    gap: 10px;
-  }
-  #board button {
-    font-size: 3rem;
-  }
+    #board {
+        grid-template-columns: repeat(3, 100px);
+        grid-template-rows: repeat(3, 100px);
+        gap: 10px;
+    }
+
+    #board button {
+        font-size: 3rem;
+    }
 }
