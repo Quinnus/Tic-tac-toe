@@ -1,125 +1,717 @@
-/* Center everything on the page */
+/* ── Palette ─────────────────────────────────────────────── */
+:root {
+    --x-1: #ff5f6d;
+    --x-2: #ffa24c;
+    --o-1: #11c5bf;
+    --o-2: #4b83ff;
+    --accent: #6c5ce7;
+    --accent-2: #b36bff;
+    --accent-dark: #4a3cc2;
+    --gold: #ffc53d;
+
+    --bg-1: #f7f1ff;
+    --bg-2: #e6e9ff;
+    --blob-1: #ffc8d6;
+    --blob-2: #c6f4ef;
+    --blob-3: #d9ccff;
+
+    --ink: #2b2745;
+    --ink-soft: #6f6a90;
+    --tray: rgba(255, 255, 255, 0.55);
+    --tray-border: rgba(255, 255, 255, 0.9);
+    --tile: #ffffff;
+    --tile-hover: #fbf9ff;
+    --tile-shadow: 0 4px 0 #e4defa, 0 6px 16px rgba(76, 60, 160, 0.1);
+    --chip: rgba(255, 255, 255, 0.75);
+    --track: rgba(43, 39, 69, 0.08);
+
+    /* Squares shrink to fit narrow or short screens */
+    --cell: max(64px, min(116px, 25vw, calc((100dvh - 470px) / 3)));
+    --gap: calc(var(--cell) / 10);
+
+    color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --x-1: #ff6b78;
+        --x-2: #ffab5c;
+        --o-1: #2de0d8;
+        --o-2: #6b9bff;
+        --accent: #8b7cff;
+        --accent-2: #c58bff;
+        --accent-dark: #5a4bd6;
+
+        --bg-1: #16132d;
+        --bg-2: #211b46;
+        --blob-1: #5a2656;
+        --blob-2: #164b54;
+        --blob-3: #3a2a7a;
+
+        --ink: #f3f0ff;
+        --ink-soft: #aca6d6;
+        --tray: rgba(38, 33, 78, 0.6);
+        --tray-border: rgba(255, 255, 255, 0.08);
+        --tile: #2c2757;
+        --tile-hover: #342e66;
+        --tile-shadow: 0 4px 0 #1c1840, 0 6px 16px rgba(0, 0, 0, 0.3);
+        --chip: rgba(44, 39, 87, 0.8);
+        --track: rgba(255, 255, 255, 0.1);
+
+        color-scheme: dark;
+    }
+}
+
+/* ── Page ────────────────────────────────────────────────── */
+* {
+    box-sizing: border-box;
+}
+
 body {
-    font-family: Arial, sans-serif;
+    margin: 0;
+    min-height: 100vh;
+    font-family: 'Fredoka', 'Nunito', system-ui, sans-serif;
+    color: var(--ink);
+    background: linear-gradient(160deg, var(--bg-1), var(--bg-2));
+    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+}
+
+/* Soft colour blobs drifting behind everything */
+.backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.blob {
+    position: absolute;
+    width: 45vmax;
+    height: 45vmax;
+    border-radius: 50%;
+    filter: blur(70px);
+    opacity: 0.7;
+    animation: drift 24s ease-in-out infinite alternate;
+}
+
+.blob-1 {
+    background: var(--blob-1);
+    top: -15vmax;
+    left: -10vmax;
+}
+
+.blob-2 {
+    background: var(--blob-2);
+    bottom: -20vmax;
+    right: -10vmax;
+    animation-delay: -8s;
+}
+
+.blob-3 {
+    background: var(--blob-3);
+    top: 30%;
+    left: 45%;
+    width: 30vmax;
+    height: 30vmax;
+    animation-delay: -16s;
+}
+
+@keyframes drift {
+    to {
+        transform: translate(6vmax, 4vmax) scale(1.1);
+    }
+}
+
+.game {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
-    min-height: 100vh;
-    width: 100%;
-    margin: 0;
-    padding-top: 40px;
-    background: #f0f0f0 linear-gradient(180deg, #f0f0f0 0%, #8f97eb 100%);
-    overflow: hidden;
+    gap: 14px;
+    padding: 20px 16px 32px;
 }
 
-/* Header styling */
-h1 {
-    margin-bottom: 5px;
-    color: #333;
+button {
+    font-family: inherit;
 }
 
-h3 {
-    margin-top: 0;
-    color: #666;
+button:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 3px;
 }
 
-/* Board grid */
-#board {
+/* ── Header ──────────────────────────────────────────────── */
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.brand-marks {
+    display: flex;
+}
+
+.brand-marks .mark {
+    width: 34px;
+    height: 34px;
+}
+
+.brand-marks .mark-o {
+    margin-left: -8px;
+}
+
+.brand-name {
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+/* ── vs CPU / 2 players ──────────────────────────────────── */
+.mode-switch {
+    position: relative;
     display: grid;
-    grid-template-columns: repeat(3, 160px);
-    grid-template-rows: repeat(3, 160px);
-    gap: 16px;
-    margin-top: 20px;
+    grid-template-columns: 1fr 1fr;
+    padding: 4px;
+    border-radius: 999px;
+    background: var(--chip);
+    box-shadow: inset 0 0 0 1px var(--tray-border), 0 4px 14px rgba(76, 60, 160, 0.08);
 }
 
-/* Buttons (squares) */
-#board button {
-    font-size: 5rem;
-    font-weight: bold;
-    border: 2px solid #555;
-    border-radius: 8px;
-    background-color: #fff;
+.mode-thumb {
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    left: 4px;
+    width: calc(50% - 4px);
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    box-shadow: 0 3px 10px rgba(108, 92, 231, 0.35);
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.mode-switch[data-mode='friend'] .mode-thumb {
+    transform: translateX(100%);
+}
+
+.mode-switch button {
+    position: relative;
+    padding: 8px 20px;
+    border: none;
+    background: none;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--ink-soft);
     cursor: pointer;
-    transition: background-color 0.2s, transform 0.15s ease-out;
+    transition: color 0.25s;
 }
 
-/* Hover / active effects */
-#board button:hover {
-    background-color: #e0e0e0;
-    transform: scale(1.1);
-    box-shadow: 0 0 10px rgb(35, 224, 10);
+.mode-switch button[aria-pressed='true'] {
+    color: #fff;
 }
 
-#board button:active {
-    transform: scale(0.95);
+/* ── Status ──────────────────────────────────────────────── */
+.status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 48px;
+    margin-top: 6px;
 }
 
-/* Optional: different colours for X and O */
-#board button:has(span.x) {
-    color: #0074d9;
+.status h1 {
+    margin: 0;
+    font-size: 2.1rem;
+    font-weight: 700;
+    line-height: 1;
 }
 
-#board button:has(span.o) {
-    color: #ff4136;
+.status-mark {
+    width: 40px;
+    height: 40px;
 }
 
-/* --- Simple pop animation when X or O appears --- */
-@keyframes popIn {
-    0% {
-        transform: scale(0.2);
-        opacity: 0;
+.status-win h1 {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: bounceIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.status-draw h1 {
+    animation: bounceIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* The CPU's thinking dots */
+.thinking {
+    display: inline-flex;
+    gap: 4px;
+    margin-left: 6px;
+    vertical-align: middle;
+}
+
+.thinking span {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--o-1);
+    animation: thinking 1s ease-in-out infinite;
+}
+
+.thinking span:nth-child(2) {
+    animation-delay: 0.15s;
+}
+
+.thinking span:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+@keyframes thinking {
+    0%,
+    100% {
+        transform: translateY(0);
+        opacity: 0.4;
     }
-    80% {
-        transform: scale(1.1);
+    50% {
+        transform: translateY(-6px);
         opacity: 1;
+    }
+}
+
+.detail {
+    margin: -6px 0 4px;
+    min-height: 1.5em;
+    font-size: 1rem;
+    color: var(--ink-soft);
+}
+
+.detail.level-up {
+    padding: 3px 14px;
+    border-radius: 999px;
+    font-weight: 600;
+    color: #fff;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    box-shadow: 0 4px 14px rgba(108, 92, 231, 0.35);
+    animation: bounceIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes bounceIn {
+    0% {
+        transform: scale(0.6);
+        opacity: 0;
     }
     100% {
         transform: scale(1);
+        opacity: 1;
     }
 }
 
-/* Apply animation to filled squares */
-button.played {
-    animation: popIn 0.3s ease-out;
+/* ── Board ───────────────────────────────────────────────── */
+.tray {
+    padding: calc(var(--gap) * 1.6);
+    border-radius: calc(var(--cell) * 0.3);
+    background: var(--tray);
+    border: 1px solid var(--tray-border);
+    box-shadow: 0 20px 50px rgba(76, 60, 160, 0.15);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 }
 
-/* Optional colours for X and O */
-button.x {
-    color: #0074d9; /* blue for X */
+#board {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, var(--cell));
+    grid-template-rows: repeat(3, var(--cell));
+    gap: var(--gap);
 }
 
-button.o {
-    color: #ff4136; /* red for O */
-}
-
-#board button.reset {
-    font-size: 1.5em;
-    background-color: #de2935;
-    color: white;
-    font-weight: bold;
+.tile {
+    position: relative;
+    display: grid;
+    place-items: center;
+    padding: 0;
     border: none;
-    border-radius: 8px;
-    padding: 10px 16px;
-    margin-top: 12px;
+    border-radius: calc(var(--cell) * 0.22);
+    background: var(--tile);
+    box-shadow: var(--tile-shadow);
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: transform 0.15s ease-out, box-shadow 0.15s ease-out, background-color 0.2s, opacity 0.3s;
+    -webkit-tap-highlight-color: transparent;
 }
 
-#board button.reset:hover {
-    background-color: #ec0b1a;
-    transform: scale(1.05);
-    box-shadow: none;
+/* A small dot marks each empty square */
+.tile:not(.played)::before {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--track);
+    transition: opacity 0.15s;
 }
 
-@media (max-width: 600px) {
-    #board {
-        grid-template-columns: repeat(3, 100px);
-        grid-template-rows: repeat(3, 100px);
-        gap: 10px;
+.tile:not(:disabled):hover {
+    background: var(--tile-hover);
+    transform: translateY(-3px);
+}
+
+.tile:not(:disabled):hover::before {
+    opacity: 0;
+}
+
+.tile:not(:disabled):active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 #e4defa;
+}
+
+.tile:disabled {
+    cursor: default;
+}
+
+.tile .mark {
+    width: 78%;
+    height: 78%;
+}
+
+/* Faint preview of your mark, only on devices with a mouse */
+.tile .ghost {
+    position: absolute;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+@media (hover: hover) {
+    .tile:not(:disabled):hover .ghost {
+        opacity: 0.22;
+    }
+}
+
+.tile .ghost .stroke {
+    animation: none;
+    stroke-dashoffset: 0;
+}
+
+/* When someone wins, everything but the winning line fades back */
+#board.finished .tile:not(.winning) {
+    opacity: 0.4;
+}
+
+.tile.winning {
+    animation: winPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both;
+}
+
+@keyframes winPop {
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+/* ── X and O ─────────────────────────────────────────────── */
+.mark {
+    display: block;
+    overflow: visible;
+}
+
+.mark .stroke {
+    fill: none;
+    stroke-width: 13;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: draw 0.28s ease-out forwards;
+}
+
+.mark-x .stroke {
+    stroke: url(#gradient-x);
+}
+
+.mark-o .stroke {
+    stroke: url(#gradient-o);
+}
+
+.mark-x .stroke-2 {
+    animation-delay: 0.14s;
+}
+
+.mark-o .stroke {
+    animation-duration: 0.4s;
+}
+
+@keyframes draw {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* The strike-through across a winning line */
+.win-line {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+}
+
+.win-line line {
+    stroke-width: 1.1;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: draw 0.4s ease-out 0.25s forwards;
+    filter: drop-shadow(0 0 0.6px rgba(255, 255, 255, 0.9));
+}
+
+.win-line-x line {
+    stroke: url(#gradient-x);
+}
+
+.win-line-o line {
+    stroke: url(#gradient-o);
+}
+
+/* ── Score ───────────────────────────────────────────────── */
+.scoreboard {
+    display: flex;
+    gap: 10px;
+    margin-top: 6px;
+}
+
+.score {
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-template-rows: auto auto;
+    column-gap: 8px;
+    align-items: center;
+    min-width: 96px;
+    padding: 8px 14px;
+    border-radius: 16px;
+    background: var(--chip);
+    box-shadow: inset 0 0 0 2px transparent, 0 4px 14px rgba(76, 60, 160, 0.08);
+    transition: box-shadow 0.25s, transform 0.25s;
+}
+
+/* The player whose turn it is gets a ring */
+.score.active {
+    box-shadow: inset 0 0 0 2px var(--accent), 0 4px 14px rgba(108, 92, 231, 0.2);
+}
+
+.score.won {
+    animation: winPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s both;
+    box-shadow: inset 0 0 0 2px var(--gold), 0 4px 18px rgba(255, 197, 61, 0.35);
+}
+
+.score-mark {
+    grid-row: span 2;
+    width: 26px;
+    height: 26px;
+}
+
+.score-mark .stroke {
+    animation: none;
+    stroke-dashoffset: 0;
+}
+
+.draw-mark {
+    display: grid;
+    place-items: center;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+}
+
+.score-name {
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+}
+
+.score-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+/* ── CPU level ───────────────────────────────────────────── */
+.cpu-level {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.95rem;
+}
+
+.cpu-level-label {
+    color: var(--ink-soft);
+}
+
+.level-meter {
+    display: flex;
+    gap: 4px;
+}
+
+.segment {
+    width: 22px;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--track);
+    transition: background 0.4s;
+}
+
+.segment.on {
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+}
+
+.level-name {
+    min-width: 6.5em;
+    font-weight: 600;
+    animation: bounceIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ── Buttons ─────────────────────────────────────────────── */
+.controls {
+    display: flex;
+    gap: 12px;
+    margin-top: 6px;
+}
+
+.candy {
+    padding: 12px 22px;
+    border: none;
+    border-radius: 16px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s, filter 0.2s;
+}
+
+.candy:hover {
+    filter: brightness(1.06);
+}
+
+.candy:active {
+    transform: translateY(4px);
+}
+
+.candy.primary {
+    color: #fff;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    box-shadow: 0 5px 0 var(--accent-dark), 0 8px 18px rgba(108, 92, 231, 0.35);
+}
+
+.candy.primary:active {
+    box-shadow: 0 1px 0 var(--accent-dark);
+}
+
+.candy.secondary {
+    color: var(--ink);
+    background: var(--chip);
+    box-shadow: 0 5px 0 var(--track), inset 0 0 0 2px var(--track);
+}
+
+.candy.secondary:active {
+    box-shadow: 0 1px 0 var(--track), inset 0 0 0 2px var(--track);
+}
+
+/* ── Confetti ────────────────────────────────────────────── */
+.confetti {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.confetti span {
+    position: absolute;
+    top: -20px;
+    animation-name: confettiFall;
+    animation-timing-function: cubic-bezier(0.25, 0.6, 0.5, 1);
+    animation-fill-mode: forwards;
+    opacity: 0;
+}
+
+@keyframes confettiFall {
+    0% {
+        transform: translate(0, 0) rotate(0);
+        opacity: 1;
+    }
+    85% {
+        opacity: 1;
+    }
+    100% {
+        transform: translate(var(--drift), 105vh) rotate(var(--spin));
+        opacity: 0;
+    }
+}
+
+/* ── Small screens ───────────────────────────────────────── */
+@media (max-width: 420px) {
+    .status h1 {
+        font-size: 1.7rem;
     }
 
-    #board button {
-        font-size: 3rem;
+    .score {
+        min-width: 0;
+        padding: 8px 10px;
+    }
+
+    .candy {
+        padding: 11px 16px;
+    }
+}
+
+/* Short screens (laptops): tighter spacing, so the squares can stay bigger */
+@media (max-height: 760px) {
+    :root {
+        --cell: max(64px, min(116px, 25vw, calc((100dvh - 400px) / 3)));
+    }
+
+    .game {
+        gap: 9px;
+        padding: 10px 16px 14px;
+    }
+
+    .brand-name {
+        font-size: 1.3rem;
+    }
+
+    .brand-marks .mark {
+        width: 26px;
+        height: 26px;
+    }
+
+    .status {
+        min-height: 38px;
+        margin-top: 0;
+    }
+
+    .status h1 {
+        font-size: 1.7rem;
+    }
+
+    .status-mark {
+        width: 32px;
+        height: 32px;
+    }
+
+    .scoreboard,
+    .controls {
+        margin-top: 2px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-delay: 0s !important;
+        transition: none !important;
+    }
+
+    .blob,
+    .confetti {
+        display: none;
     }
 }

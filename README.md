@@ -1,16 +1,43 @@
-# React + Vite
+# Tic-Tac-Toe
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Tic-tac-toe in React and Vite. Play a friend on the same screen, or a CPU that gets harder every time you beat it.
 
-Currently, two official plugins are available:
+## Playing
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **vs CPU:** you're X and the CPU is O. Each time you win, the CPU moves up a level:
 
-## React Compiler
+  | Level | How it plays |
+  |---|---|
+  | Beginner | Anywhere at random |
+  | Casual | Takes a winning move, blocks you about half the time |
+  | Sharp | Always wins or blocks when it can, but can be caught by a fork |
+  | Tricky | Plays perfectly about half the time |
+  | Unbeatable | Plays perfectly; the best you can do is draw |
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **2 players:** take turns on the same screen.
 
-## Expanding the ESLint configuration
+Players take turns going first each round. The winning line is highlighted, and the score and CPU level are remembered between visits. **Reset scores** clears the score and puts the CPU back to Beginner.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+The squares are buttons, so you can also play with Tab and Enter.
+
+## Development
+
+```bash
+pnpm install
+pnpm dev       # dev server, reachable from other devices on your network
+pnpm build     # production build in dist/
+pnpm lint
+```
+
+## Files
+
+| File | What it does |
+|---|---|
+| `src/gameLogic.js` | Winning lines, win detection and the CPU's moves for each level |
+| `src/App.jsx` | Game state, turns, scores, CPU levelling and layout |
+| `src/App.css` | Styles, including the colour palette and dark mode |
+| `src/components/Mark.jsx` | The X and O, drawn as animated strokes |
+| `src/components/WinLine.jsx` | The line struck through a winning row |
+| `src/components/Confetti.jsx`, `makeConfetti.js` | Confetti when you win |
+| `src/*.wav` | Click, win and new-round sounds |
+| `public/favicon.svg` | Browser tab icon |
